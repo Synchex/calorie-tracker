@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { User, Meal, DailyLog, UserGoals, DietMode, WeeklyMealPlan, ShoppingItem, Recipe, DayPlan, MealClassificationData } from '@/types';
-import { format, startOfDay, addDays } from 'date-fns';
+import { format, startOfDay, addDays, subDays } from 'date-fns';
 import { MealClassifier, type UserGoals as ClassifierGoals } from '@/services/MealClassifier';
 
 // Helper to convert store goals to classifier goals
@@ -77,6 +77,14 @@ interface AppState {
   // Recipe Detail
   selectedRecipeId: string | null;
   setSelectedRecipeId: (id: string | null) => void;
+
+  // Weight Tracking
+  weightEntries: WeightEntry[];
+  addWeightEntry: (weight: number, date?: Date) => void;
+  deleteWeightEntry: (id: string) => void;
+  getWeightHistory: (days?: number) => WeightEntry[];
+  isWeightModalOpen: boolean;
+  setWeightModalOpen: (open: boolean) => void;
 }
 
 const defaultGoals: UserGoals = {
@@ -86,6 +94,14 @@ const defaultGoals: UserGoals = {
   fat: 70,
   water: 8,
 };
+
+// Weight Entry type
+interface WeightEntry {
+  id: string;
+  weight: number;
+  date: string;
+  createdAt: string;
+}
 
 const defaultUser: User = {
   id: 'demo-user',
@@ -400,6 +416,26 @@ const generateDemoWeeklyPlan = (): WeeklyMealPlan => {
   };
 };
 
+// Generate demo weight entries for the last 14 days
+const generateDemoWeightEntries = (): WeightEntry[] => {
+  const entries: WeightEntry[] = [];
+  let baseWeight = 76;
+
+  for (let i = 13; i >= 0; i--) {
+    const date = subDays(new Date(), i);
+    // Simulate gradual weight loss with some variation
+    baseWeight = baseWeight - 0.05 + (Math.random() * 0.15 - 0.075);
+    entries.push({
+      id: `weight-${i}`,
+      weight: Math.round(baseWeight * 10) / 10,
+      date: format(date, 'yyyy-MM-dd'),
+      createdAt: date.toISOString(),
+    });
+  }
+
+  return entries;
+};
+
 export const useStore = create<AppState>()(
   persist(
     (set, get) => ({
@@ -494,6 +530,44 @@ export const useStore = create<AppState>()(
       // Recipe Detail
       selectedRecipeId: null,
       setSelectedRecipeId: (id) => set({ selectedRecipeId: id }),
+
+      // Weight Tracking
+      weightEntries: generateDemoWeightEntries(),
+      addWeightEntry: (weight, date = new Date()) => set((state) => {
+        const dateStr = format(date, 'yyyy-MM-dd');
+        // Check if entry exists for this date and update it
+        const existingIndex = state.weightEntries.findIndex(e => e.date === dateStr);
+
+        if (existingIndex >= 0) {
+          // Update existing entry
+          const updated = [...state.weightEntries];
+          updated[existingIndex] = {
+            ...updated[existingIndex],
+            weight: Math.round(weight * 10) / 10,
+            createdAt: new Date().toISOString(),
+          };
+          return { weightEntries: updated };
+        }
+
+        // Add new entry
+        const newEntry: WeightEntry = {
+          id: `weight-${Date.now()}`,
+          weight: Math.round(weight * 10) / 10,
+          date: dateStr,
+          createdAt: new Date().toISOString(),
+        };
+        return { weightEntries: [...state.weightEntries, newEntry].sort((a, b) => a.date.localeCompare(b.date)) };
+      }),
+      deleteWeightEntry: (id) => set((state) => ({
+        weightEntries: state.weightEntries.filter(e => e.id !== id),
+      })),
+      getWeightHistory: (days = 14) => {
+        const entries = get().weightEntries;
+        const cutoffDate = format(subDays(new Date(), days), 'yyyy-MM-dd');
+        return entries.filter(e => e.date >= cutoffDate).sort((a, b) => a.date.localeCompare(b.date));
+      },
+      isWeightModalOpen: false,
+      setWeightModalOpen: (open) => set({ isWeightModalOpen: open }),
     }),
     {
       name: 'calorie-tracker-storage',
@@ -504,6 +578,7 @@ export const useStore = create<AppState>()(
         dietMode: state.dietMode,
         weeklyMealPlan: state.weeklyMealPlan,
         shoppingList: state.shoppingList,
+        weightEntries: state.weightEntries,
       }),
     }
   )
