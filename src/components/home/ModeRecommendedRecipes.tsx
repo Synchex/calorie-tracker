@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, Flame, ChevronRight, Check, Zap } from 'lucide-react';
+import { Clock, Flame, ChevronRight, Zap } from 'lucide-react';
 import { useStore } from '@/stores/useStore';
 import { getRecipesByMode, type Recipe } from '@/lib/recipes';
 import type { DietMode } from '@/types';
@@ -11,11 +11,10 @@ function calculateModeScore(recipe: Recipe, mode: DietMode, userGoals: { calorie
     const caloriesPerMeal = userGoals.calories / 4;
     const proteinPerMeal = userGoals.protein / 4;
 
-    let score = 50; // Base score
+    let score = 50;
 
     switch (mode) {
         case 'bulk':
-            // Favor high calories and high protein
             if (kcal >= caloriesPerMeal) score += 20;
             if (kcal >= caloriesPerMeal + 100) score += 10;
             if (protein >= proteinPerMeal) score += 15;
@@ -23,7 +22,6 @@ function calculateModeScore(recipe: Recipe, mode: DietMode, userGoals: { calorie
             if (carbs >= 40) score += 5;
             break;
         case 'cut':
-            // Favor low calories and high protein
             if (kcal <= caloriesPerMeal) score += 20;
             if (kcal <= caloriesPerMeal - 100) score += 10;
             if (protein >= proteinPerMeal) score += 20;
@@ -31,7 +29,6 @@ function calculateModeScore(recipe: Recipe, mode: DietMode, userGoals: { calorie
             if (fat < 15) score += 5;
             break;
         case 'maintain':
-            // Favor balanced macros
             const proteinRatio = protein / (protein + carbs + fat);
             const carbRatio = carbs / (protein + carbs + fat);
             const fatRatio = fat / (protein + carbs + fat);
@@ -46,21 +43,18 @@ function calculateModeScore(recipe: Recipe, mode: DietMode, userGoals: { calorie
 }
 
 // Mode configuration
-const modeConfig: Record<DietMode, { title: string; subtitle: string; gradient: string }> = {
+const modeConfig: Record<DietMode, { title: string; subtitle: string }> = {
     bulk: {
         title: 'Recommended for your mode',
         subtitle: 'Perfect for Bulking 💪',
-        gradient: 'from-emerald-500 to-teal-400',
     },
     cut: {
         title: 'Recommended for your mode',
         subtitle: 'Perfect for Cutting ✂️',
-        gradient: 'from-rose-500 to-pink-400',
     },
     maintain: {
         title: 'Recommended for your mode',
         subtitle: 'Perfect for Maintenance ⚖️',
-        gradient: 'from-amber-500 to-orange-400',
     },
 };
 
@@ -68,30 +62,24 @@ export function ModeRecommendedRecipes() {
     const { dietMode, setActiveTab, setSelectedRecipeId, user } = useStore();
     const [isLoading, setIsLoading] = useState(true);
 
-    // User goals from store
     const userGoals = useMemo(() => ({
         calories: user?.goals.calories ?? 2500,
         protein: user?.goals.protein ?? 150,
     }), [user]);
 
-    // Simulate initial loading
     useEffect(() => {
         setIsLoading(true);
         const timer = setTimeout(() => setIsLoading(false), 600);
         return () => clearTimeout(timer);
     }, [dietMode]);
 
-    // Get and filter recipes with high scores for current mode
     const filteredRecipes = useMemo(() => {
         const modeRecipes = getRecipesByMode(dietMode);
-
-        // Calculate scores and filter
         const withScores = modeRecipes.map(recipe => ({
             recipe,
             score: calculateModeScore(recipe, dietMode, userGoals),
         }));
 
-        // Filter recipes with score >= 70 and sort by score
         return withScores
             .filter(item => item.score >= 70)
             .sort((a, b) => b.score - a.score)
@@ -105,20 +93,20 @@ export function ModeRecommendedRecipes() {
         setActiveTab('diet');
     };
 
-    // Loading skeleton
+    // Loading skeleton - compact size
     if (isLoading) {
         return (
-            <div className="py-6">
-                <div className="flex items-center justify-between px-6 mb-4">
-                    <div className="space-y-2">
-                        <div className="h-5 w-48 skeleton rounded-lg" />
-                        <div className="h-4 w-32 skeleton rounded-lg" />
+            <div className="py-5">
+                <div className="flex items-center justify-between px-5 mb-3">
+                    <div className="space-y-1.5">
+                        <div className="h-4 w-40 skeleton rounded-lg" />
+                        <div className="h-3 w-28 skeleton rounded-lg" />
                     </div>
-                    <div className="h-4 w-16 skeleton rounded-lg" />
+                    <div className="h-3 w-12 skeleton rounded-lg" />
                 </div>
-                <div className="flex gap-4 px-6 overflow-x-auto hide-scrollbar">
-                    {[1, 2, 3].map((i) => (
-                        <div key={i} className="w-[280px] h-[320px] skeleton rounded-2xl flex-shrink-0" />
+                <div className="flex gap-3 px-5 overflow-x-auto hide-scrollbar">
+                    {[1, 2, 3, 4].map((i) => (
+                        <div key={i} className="w-[220px] h-[180px] skeleton rounded-3xl flex-shrink-0" />
                     ))}
                 </div>
             </div>
@@ -128,17 +116,17 @@ export function ModeRecommendedRecipes() {
     // Empty state
     if (filteredRecipes.length === 0) {
         return (
-            <div className="py-6 px-6">
+            <div className="py-5 px-5">
                 <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-surface rounded-2xl p-8 text-center"
+                    className="bg-surface/60 backdrop-blur-sm rounded-3xl p-6 text-center border border-white/20"
                 >
-                    <p className="text-body text-text-secondary mb-4">No recipes found for your mode</p>
+                    <p className="text-sm text-text-secondary mb-3">No recipes found for your mode</p>
                     <motion.button
                         whileTap={{ scale: 0.95 }}
                         onClick={handleSeeAll}
-                        className="px-5 py-2.5 gradient-accent text-white rounded-xl text-label font-semibold shadow-accent"
+                        className="px-4 py-2 bg-accent text-white rounded-full text-xs font-medium"
                     >
                         Browse all recipes
                     </motion.button>
@@ -148,26 +136,26 @@ export function ModeRecommendedRecipes() {
     }
 
     return (
-        <div className="py-6">
+        <div className="py-5">
             {/* Header */}
-            <div className="flex items-center justify-between px-6 mb-4">
+            <div className="flex items-center justify-between px-5 mb-3">
                 <div>
-                    <h2 className="text-title text-text-primary">{config.title}</h2>
-                    <p className="text-label text-text-secondary mt-0.5">{config.subtitle}</p>
+                    <h2 className="text-base font-semibold text-text-primary">{config.title}</h2>
+                    <p className="text-xs text-text-secondary mt-0.5">{config.subtitle}</p>
                 </div>
                 <motion.button
                     whileTap={{ scale: 0.95 }}
                     onClick={handleSeeAll}
-                    className="flex items-center gap-1 text-label font-semibold text-accent hover:underline"
+                    className="flex items-center gap-0.5 text-xs font-medium text-accent"
                 >
                     See all
-                    <ChevronRight size={16} />
+                    <ChevronRight size={14} />
                 </motion.button>
             </div>
 
-            {/* Horizontal Scroll Container */}
+            {/* Horizontal Scroll Container - tighter gaps */}
             <div className="overflow-x-auto hide-scrollbar">
-                <div className="flex gap-4 px-6 pb-2 snap-x-mandatory">
+                <div className="flex gap-3 px-5 pb-2">
                     <AnimatePresence mode="popLayout">
                         {filteredRecipes.map((recipe, index) => (
                             <motion.div
@@ -175,12 +163,10 @@ export function ModeRecommendedRecipes() {
                                 initial={{ opacity: 0, x: 20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -20 }}
-                                transition={{ delay: index * 0.05 }}
+                                transition={{ delay: index * 0.04 }}
                             >
-                                <ModeRecipeCard
+                                <CompactRecipeCard
                                     recipe={recipe}
-                                    dietMode={dietMode}
-                                    userGoals={userGoals}
                                     onClick={() => setSelectedRecipeId(recipe.id)}
                                 />
                             </motion.div>
@@ -192,107 +178,78 @@ export function ModeRecommendedRecipes() {
     );
 }
 
-// Enhanced Recipe Card matching specifications
-interface ModeRecipeCardProps {
+// Compact Recipe Card - Modern, Premium, Apple-style
+interface CompactRecipeCardProps {
     recipe: Recipe & { modeScore: number };
-    dietMode: DietMode;
-    userGoals: { calories: number; protein: number };
     onClick: () => void;
 }
 
-function ModeRecipeCard({ recipe, dietMode, userGoals, onClick }: ModeRecipeCardProps) {
-    const { kcal, protein, carbs, fat } = recipe.macrosPerServing;
+function CompactRecipeCard({ recipe, onClick }: CompactRecipeCardProps) {
+    const { kcal, protein } = recipe.macrosPerServing;
     const isHighProtein = protein > 30;
-    const proteinPerMeal = userGoals.protein / 4;
-    const fitsTarget = protein >= proteinPerMeal * 0.8;
-
-    const getScoreColor = (score: number) => {
-        if (score >= 85) return 'bg-emerald-500';
-        if (score >= 75) return 'bg-emerald-400';
-        return 'bg-amber-400';
-    };
-
-    const getModeLabel = (mode: DietMode) => {
-        const labels = { bulk: 'Bulk', cut: 'Cut', maintain: 'Maintain' };
-        return labels[mode];
-    };
 
     return (
         <motion.button
-            whileHover={{ y: -4, scale: 1.02 }}
+            whileHover={{ y: -2 }}
             whileTap={{ scale: 0.98 }}
             onClick={onClick}
-            className="w-[280px] min-h-[320px] flex-shrink-0 bg-white rounded-2xl shadow-card hover:shadow-card-hover transition-shadow text-left snap-start overflow-hidden flex flex-col"
+            className="w-[220px] h-[180px] flex-shrink-0 bg-white/80 backdrop-blur-sm rounded-3xl overflow-hidden text-left border border-white/40 shadow-sm hover:shadow-md transition-all duration-200"
         >
             {/* Image Section - 60% */}
-            <div className="relative h-[192px] overflow-hidden">
+            <div className="relative h-[108px] overflow-hidden">
                 <img
                     src={recipe.image}
                     alt={recipe.title}
-                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                    className="w-full h-full object-cover"
                 />
-                {/* Gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                {/* Subtle gradient at bottom */}
+                <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-black/30 to-transparent" />
 
-                {/* High Protein Badge */}
-                {isHighProtein && (
-                    <div className="absolute top-3 right-3 bg-protein text-white text-caption font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm">
-                        💪 High Protein
-                    </div>
-                )}
-
-                {/* Whey badge */}
-                {recipe.hasWhey && (
-                    <div className="absolute top-3 left-3 bg-accent/90 backdrop-blur-sm text-white text-caption font-semibold px-2 py-1 rounded-full flex items-center gap-1 shadow-sm">
-                        <Zap size={12} />
-                        Whey
-                    </div>
-                )}
-
-                {/* Title on image */}
-                <div className="absolute bottom-3 left-3 right-3">
-                    <h3 className="text-title text-white line-clamp-2 drop-shadow-lg">
-                        {recipe.title}
-                    </h3>
+                {/* Tiny pill badges - top right */}
+                <div className="absolute top-2 right-2 flex gap-1">
+                    {isHighProtein && (
+                        <span className="bg-white/90 backdrop-blur-sm text-[10px] font-medium text-emerald-600 px-2 py-0.5 rounded-full">
+                            High Protein
+                        </span>
+                    )}
+                    {recipe.hasWhey && (
+                        <span className="bg-accent/90 backdrop-blur-sm text-[10px] font-medium text-white px-2 py-0.5 rounded-full flex items-center gap-0.5">
+                            <Zap size={8} />
+                            Whey
+                        </span>
+                    )}
                 </div>
             </div>
 
             {/* Content Section - 40% */}
-            <div className="p-4 flex-grow flex flex-col justify-between">
-                {/* Metadata row with icons */}
-                <div className="flex flex-wrap items-center gap-3 mb-3 text-label text-text-secondary">
-                    <span className="flex items-center gap-1.5">
-                        <Clock size={14} className="text-text-tertiary" />
-                        {recipe.timeMins} min
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                        <Flame size={14} className="text-carbs" />
-                        {kcal} cal
-                    </span>
-                    {fitsTarget && (
-                        <span className="flex items-center gap-1 text-success font-medium">
-                            <Check size={14} />
-                            Fits your macros
+            <div className="p-3">
+                {/* Title */}
+                <h3 className="text-sm font-semibold text-text-primary line-clamp-1 mb-1.5">
+                    {recipe.title}
+                </h3>
+
+                {/* Meta row */}
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5 text-[11px] text-text-tertiary">
+                        <span className="flex items-center gap-1">
+                            <Clock size={10} />
+                            {recipe.timeMins}m
                         </span>
-                    )}
+                        <span className="flex items-center gap-1">
+                            <Flame size={10} />
+                            {kcal}
+                        </span>
+                    </div>
                 </div>
 
-                {/* Score indicator */}
-                <div className="space-y-1.5">
-                    <div className="flex items-center justify-between text-caption">
-                        <span className="text-text-secondary">
-                            {getModeLabel(dietMode)} score
-                        </span>
-                        <span className="font-bold text-text-primary">{recipe.modeScore}/100</span>
-                    </div>
-                    <div className="w-full h-1.5 bg-surface rounded-full overflow-hidden">
-                        <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${recipe.modeScore}%` }}
-                            transition={{ duration: 0.6, delay: 0.2 }}
-                            className={`h-full ${getScoreColor(recipe.modeScore)} rounded-full`}
-                        />
-                    </div>
+                {/* Slim score bar */}
+                <div className="mt-2 w-full h-[3px] bg-gray-100 rounded-full overflow-hidden">
+                    <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${recipe.modeScore}%` }}
+                        transition={{ duration: 0.5, delay: 0.1 }}
+                        className="h-full bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full"
+                    />
                 </div>
             </div>
         </motion.button>

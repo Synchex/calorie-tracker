@@ -2,8 +2,6 @@ import { useState, useMemo, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   TrendingUp,
-  TrendingDown,
-  Target,
   ShoppingCart,
   ChevronRight,
   Clock,
@@ -16,7 +14,6 @@ import {
   X,
   Search,
   Zap,
-  Plus,
   Coffee,
   Sun,
   Moon,
@@ -558,8 +555,8 @@ function BrowseRecipesSection({
             whileTap={{ scale: 0.95 }}
             onClick={() => setHasWheyFilter(!hasWheyFilter)}
             className={`flex items-center gap-1.5 px-4 py-2.5 rounded-full text-label font-medium whitespace-nowrap transition-all ${hasWheyFilter
-                ? 'bg-accent text-white shadow-sm'
-                : 'bg-surface text-text-secondary hover:bg-border'
+              ? 'bg-accent text-white shadow-sm'
+              : 'bg-surface text-text-secondary hover:bg-border'
               }`}
           >
             <Zap size={14} />
@@ -611,7 +608,7 @@ function BrowseRecipesSection({
             )}
           </motion.div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {recipes.map((recipe, index) => (
               <motion.div
                 key={recipe.id}
@@ -648,8 +645,8 @@ function FilterChip({
 }) {
   return (
     <div className={`relative flex items-center gap-1.5 px-4 py-2.5 rounded-full text-label font-medium whitespace-nowrap transition-all cursor-pointer ${isActive
-        ? 'bg-accent text-white shadow-sm'
-        : 'bg-surface text-text-secondary hover:bg-border'
+      ? 'bg-accent text-white shadow-sm'
+      : 'bg-surface text-text-secondary hover:bg-border'
       }`}>
       {icon}
       <span>{label}</span>
@@ -663,75 +660,73 @@ function FilterChip({
   );
 }
 
-// Library Recipe Card - Complete Redesign
+// Library Recipe Card - Compact Premium Design
 function LibRecipeCard({ recipe, onClick }: { recipe: LibRecipe; onClick: () => void }) {
+  const isHighProtein = recipe.macrosPerServing.protein > 30;
+
   return (
     <motion.button
-      whileHover={{ y: -4 }}
+      whileHover={{ y: -2 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className="w-full bg-white rounded-2xl overflow-hidden shadow-card card-hover text-left"
+      className="w-full bg-white/80 backdrop-blur-sm rounded-3xl overflow-hidden text-left border border-white/40 shadow-sm hover:shadow-md transition-all duration-200"
     >
-      {/* Large image with gradient overlay */}
-      <div className="relative h-48 overflow-hidden">
+      {/* Image section - 60% */}
+      <div className="relative h-32 overflow-hidden">
         <img
           src={recipe.image}
           alt={recipe.title}
-          className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+          className="w-full h-full object-cover"
         />
-        <div className="gradient-overlay absolute inset-0" />
+        {/* Subtle gradient at bottom */}
+        <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-black/30 to-transparent" />
 
-        {/* Floating badges on image */}
-        <div className="absolute top-3 right-3 flex flex-col gap-2">
-          <span className="bg-white/90 backdrop-blur-sm text-protein text-caption px-2.5 py-1 rounded-full font-semibold shadow-sm">
-            {recipe.macrosPerServing.protein}g protein
-          </span>
+        {/* Tiny pill badges - top right */}
+        <div className="absolute top-2 right-2 flex gap-1">
+          {isHighProtein && (
+            <span className="bg-white/90 backdrop-blur-sm text-[10px] font-medium text-emerald-600 px-2 py-0.5 rounded-full">
+              High Protein
+            </span>
+          )}
           {recipe.hasWhey && (
-            <span className="bg-accent/90 backdrop-blur-sm text-white text-caption px-2.5 py-1 rounded-full font-semibold flex items-center gap-1 shadow-sm">
-              <Zap size={12} />
+            <span className="bg-accent/90 backdrop-blur-sm text-[10px] font-medium text-white px-2 py-0.5 rounded-full flex items-center gap-0.5">
+              <Zap size={8} />
               Whey
             </span>
           )}
         </div>
-
-        {/* Title on image bottom */}
-        <div className="absolute bottom-0 left-0 right-0 p-4">
-          <h3 className="text-title text-white line-clamp-2 drop-shadow-lg">{recipe.title}</h3>
-        </div>
       </div>
 
       {/* Content section */}
-      <div className="p-4">
-        {/* Meta info */}
-        <div className="flex items-center gap-4 text-label text-text-secondary mb-3">
-          <span className="flex items-center gap-1.5">
-            <Clock size={16} className="text-text-tertiary" />
-            {recipe.timeMins} min
+      <div className="p-3">
+        {/* Title */}
+        <h3 className="text-sm font-semibold text-text-primary line-clamp-2 mb-2">
+          {recipe.title}
+        </h3>
+
+        {/* Meta row */}
+        <div className="flex items-center gap-3 text-[11px] text-text-tertiary mb-2">
+          <span className="flex items-center gap-1">
+            <Clock size={11} />
+            {recipe.timeMins}m
           </span>
-          <span className="flex items-center gap-1.5">
-            <Flame size={16} className="text-carbs" />
-            {recipe.macrosPerServing.kcal} kcal
+          <span className="flex items-center gap-1">
+            <Flame size={11} />
+            {recipe.macrosPerServing.kcal}
           </span>
         </div>
 
-        {/* Macro badges */}
-        <div className="flex gap-2">
-          <span className="text-caption bg-protein/10 text-protein px-2.5 py-1 rounded-full font-medium">
-            P: {recipe.macrosPerServing.protein}g
+        {/* Macro pills - tiny */}
+        <div className="flex gap-1.5">
+          <span className="text-[9px] bg-protein/10 text-protein px-2 py-0.5 rounded-full font-medium">
+            P {recipe.macrosPerServing.protein}g
           </span>
-          <span className="text-caption bg-carbs/10 text-carbs px-2.5 py-1 rounded-full font-medium">
-            C: {recipe.macrosPerServing.carb}g
+          <span className="text-[9px] bg-carbs/10 text-carbs px-2 py-0.5 rounded-full font-medium">
+            C {recipe.macrosPerServing.carbs}g
           </span>
-          <span className="text-caption bg-fat/10 text-fat px-2.5 py-1 rounded-full font-medium">
-            F: {recipe.macrosPerServing.fat}g
+          <span className="text-[9px] bg-fat/10 text-fat px-2 py-0.5 rounded-full font-medium">
+            F {recipe.macrosPerServing.fat}g
           </span>
-        </div>
-      </div>
-
-      {/* Add button */}
-      <div className="absolute bottom-4 right-4">
-        <div className="w-10 h-10 bg-accent rounded-full flex items-center justify-center shadow-accent">
-          <Plus size={20} className="text-white" />
         </div>
       </div>
     </motion.button>
@@ -778,7 +773,7 @@ function RecipeRecommendations({ recipes, dietMode }: RecipeRecommendationsProps
           </div>
         </div>
       ) : (
-        <div className="flex gap-4 overflow-x-auto px-6 pb-2 hide-scrollbar snap-x-mandatory">
+        <div className="flex gap-3 overflow-x-auto px-5 pb-2 hide-scrollbar snap-x-mandatory">
           {sortedRecipes.slice(0, 5).map((recipe, index) => (
             <motion.div
               key={recipe.id}
@@ -795,84 +790,81 @@ function RecipeRecommendations({ recipes, dietMode }: RecipeRecommendationsProps
   );
 }
 
-// Recipe Card - Horizontal scroll card
+// Recipe Card - Compact Horizontal Scroll Card
 function RecipeCard({ recipe, dietMode }: { recipe: Recipe; dietMode: DietMode }) {
   const [liked, setLiked] = useState(false);
   const score = recipe.classification?.score[dietMode] ?? 0;
-
-  const getScoreGradient = (s: number) => {
-    if (s >= 70) return 'from-emerald-500 to-teal-400';
-    if (s >= 50) return 'from-amber-500 to-yellow-400';
-    return 'from-rose-500 to-pink-400';
-  };
+  const isHighProtein = recipe.protein > 30;
 
   return (
     <motion.div
-      whileHover={{ y: -4 }}
-      className="flex-shrink-0 w-72 bg-white rounded-2xl overflow-hidden shadow-card card-hover snap-start"
+      whileHover={{ y: -2 }}
+      whileTap={{ scale: 0.98 }}
+      className="flex-shrink-0 w-[220px] h-[180px] bg-white/80 backdrop-blur-sm rounded-3xl overflow-hidden text-left border border-white/40 shadow-sm hover:shadow-md transition-all duration-200 snap-start"
     >
-      <div className="relative h-40 overflow-hidden">
+      {/* Image Section - 60% */}
+      <div className="relative h-[108px] overflow-hidden">
         <img
           src={recipe.photo_url}
           alt={recipe.name}
           className="w-full h-full object-cover"
         />
-        <div className="gradient-overlay absolute inset-0" />
+        {/* Subtle gradient */}
+        <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-black/30 to-transparent" />
 
+        {/* Like button */}
         <button
           onClick={(e) => { e.stopPropagation(); setLiked(!liked); }}
-          className="absolute top-3 right-3 p-2.5 bg-white/90 backdrop-blur-sm rounded-full shadow-sm"
+          className="absolute top-2 right-2 p-1.5 bg-white/90 backdrop-blur-sm rounded-full"
         >
           <Heart
-            size={18}
+            size={14}
             className={`transition-colors ${liked ? 'fill-protein text-protein' : 'text-text-tertiary'}`}
           />
         </button>
 
-        {recipe.classification && (
-          <div className={`absolute bottom-3 left-3 bg-gradient-to-r ${getScoreGradient(score)} text-white text-caption px-3 py-1.5 rounded-full flex items-center gap-1.5 font-semibold shadow-sm`}>
-            <Check size={14} />
-            {score}/100
-          </div>
-        )}
+        {/* Tiny badges */}
+        <div className="absolute top-2 left-2 flex gap-1">
+          {isHighProtein && (
+            <span className="bg-white/90 backdrop-blur-sm text-[9px] font-medium text-emerald-600 px-1.5 py-0.5 rounded-full">
+              High Protein
+            </span>
+          )}
+        </div>
       </div>
 
-      <div className="p-4">
-        <h3 className="text-title text-text-primary mb-2 line-clamp-1">{recipe.name}</h3>
+      {/* Content Section */}
+      <div className="p-3">
+        {/* Title */}
+        <h3 className="text-sm font-semibold text-text-primary line-clamp-1 mb-1.5">
+          {recipe.name}
+        </h3>
 
-        <div className="flex items-center gap-3 text-label text-text-secondary mb-3">
-          <span className="flex items-center gap-1">
-            <Clock size={14} className="text-text-tertiary" />
-            {recipe.prepTime} min
-          </span>
-          <span className="flex items-center gap-1">
-            <Flame size={14} className="text-carbs" />
-            {recipe.calories} cal
-          </span>
+        {/* Meta row */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5 text-[11px] text-text-tertiary">
+            <span className="flex items-center gap-1">
+              <Clock size={10} />
+              {recipe.prepTime}m
+            </span>
+            <span className="flex items-center gap-1">
+              <Flame size={10} />
+              {recipe.calories}
+            </span>
+          </div>
         </div>
 
-        {/* Classification badges */}
-        {recipe.classification && recipe.classification.badges.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mb-3">
-            {recipe.classification.badges.slice(0, 2).map((badge, i) => (
-              <span key={i} className="text-caption bg-surface text-text-secondary px-2 py-0.5 rounded-full">
-                {badge}
-              </span>
-            ))}
+        {/* Slim score bar */}
+        {score > 0 && (
+          <div className="mt-2 w-full h-[3px] bg-gray-100 rounded-full overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${score}%` }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="h-full bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full"
+            />
           </div>
         )}
-
-        <div className="flex gap-2">
-          <span className="text-caption bg-protein/10 text-protein px-2 py-1 rounded-full font-medium">
-            P: {recipe.protein}g
-          </span>
-          <span className="text-caption bg-carbs/10 text-carbs px-2 py-1 rounded-full font-medium">
-            C: {recipe.carbs}g
-          </span>
-          <span className="text-caption bg-fat/10 text-fat px-2 py-1 rounded-full font-medium">
-            F: {recipe.fat}g
-          </span>
-        </div>
       </div>
     </motion.div>
   );
@@ -972,8 +964,8 @@ function GeneratePlanModal({ isOpen, onClose }: GeneratePlanModalProps) {
                           whileTap={{ scale: 0.95 }}
                           onClick={() => setPreferences({ ...preferences, mealsPerDay: num })}
                           className={`flex-1 py-3.5 rounded-xl font-semibold transition-all ${preferences.mealsPerDay === num
-                              ? 'gradient-accent text-white shadow-accent'
-                              : 'bg-surface text-text-secondary hover:bg-border'
+                            ? 'gradient-accent text-white shadow-accent'
+                            : 'bg-surface text-text-secondary hover:bg-border'
                             }`}
                         >
                           {num}
@@ -999,8 +991,8 @@ function GeneratePlanModal({ isOpen, onClose }: GeneratePlanModalProps) {
                             setPreferences({ ...preferences, cuisine: selected });
                           }}
                           className={`px-4 py-2.5 rounded-full text-label font-medium transition-all ${preferences.cuisine.includes(cuisine)
-                              ? 'gradient-accent text-white shadow-sm'
-                              : 'bg-surface text-text-secondary hover:bg-border'
+                            ? 'gradient-accent text-white shadow-sm'
+                            : 'bg-surface text-text-secondary hover:bg-border'
                             }`}
                         >
                           {cuisine}
@@ -1026,8 +1018,8 @@ function GeneratePlanModal({ isOpen, onClose }: GeneratePlanModalProps) {
                             setPreferences({ ...preferences, avoid: selected });
                           }}
                           className={`px-4 py-2.5 rounded-full text-label font-medium transition-all ${preferences.avoid.includes(food)
-                              ? 'gradient-protein text-white shadow-sm'
-                              : 'bg-surface text-text-secondary hover:bg-border'
+                            ? 'gradient-protein text-white shadow-sm'
+                            : 'bg-surface text-text-secondary hover:bg-border'
                             }`}
                         >
                           {food}
@@ -1048,8 +1040,8 @@ function GeneratePlanModal({ isOpen, onClose }: GeneratePlanModalProps) {
                           whileTap={{ scale: 0.95 }}
                           onClick={() => setPreferences({ ...preferences, budget: level })}
                           className={`flex-1 py-3.5 rounded-xl font-semibold capitalize transition-all ${preferences.budget === level
-                              ? 'gradient-accent text-white shadow-accent'
-                              : 'bg-surface text-text-secondary hover:bg-border'
+                            ? 'gradient-accent text-white shadow-accent'
+                            : 'bg-surface text-text-secondary hover:bg-border'
                             }`}
                         >
                           {level}
@@ -1070,8 +1062,8 @@ function GeneratePlanModal({ isOpen, onClose }: GeneratePlanModalProps) {
                           whileTap={{ scale: 0.95 }}
                           onClick={() => setPreferences({ ...preferences, cookingTime: time })}
                           className={`flex-1 py-3.5 rounded-xl font-semibold transition-all ${preferences.cookingTime === time
-                              ? 'gradient-accent text-white shadow-accent'
-                              : 'bg-surface text-text-secondary hover:bg-border'
+                            ? 'gradient-accent text-white shadow-accent'
+                            : 'bg-surface text-text-secondary hover:bg-border'
                             }`}
                         >
                           {time === 'quick' ? '< 15 min' : time === 'moderate' ? '15-30 min' : '30+ min'}
