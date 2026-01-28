@@ -97,7 +97,7 @@ export function DietPage() {
 
   // Simulate initial loading
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 800);
+    const timer = setTimeout(() => setIsLoading(false), 600);
     return () => clearTimeout(timer);
   }, []);
 
@@ -135,13 +135,13 @@ export function DietPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen pb-28">
-      {/* Header */}
-      <header className="px-6 pt-8 pb-4">
+    <div className="flex flex-col min-h-screen pb-24">
+      {/* Compact Header */}
+      <header className="px-5 pt-6 pb-2">
         <motion.h1
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-headline text-text-primary"
+          className="text-xl font-bold text-text-primary"
         >
           Diet Plan
         </motion.h1>
@@ -149,13 +149,13 @@ export function DietPage() {
           initial={{ opacity: 0, y: -5 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
-          className="text-body text-text-secondary mt-1"
+          className="text-sm text-text-secondary"
         >
           Plan your meals & reach your goals
         </motion.p>
       </header>
 
-      {/* Mode Selector */}
+      {/* Slim Mode Selector */}
       <ModeSelector currentMode={dietMode} onModeChange={setDietMode} />
 
       {/* Browse Recipes Section */}
@@ -179,28 +179,28 @@ export function DietPage() {
         />
       </div>
 
-      {/* Weekly Meal Plan */}
+      {/* Weekly Meal Plan - Compact */}
       <WeeklyPlanSection
         plan={weeklyMealPlan}
         isLoading={isLoading}
       />
 
-      {/* Shopping List Shortcut */}
+      {/* Shopping List Shortcut - Compact */}
       <ShoppingListCard itemCount={uncheckedItemsCount} topItems={shoppingList.filter((i) => !i.checked).slice(0, 3)} />
 
       {/* Recipe Recommendations */}
       <RecipeRecommendations recipes={recommendedRecipes} dietMode={dietMode} />
 
-      {/* Generate Plan CTA */}
-      <div className="px-6 py-6">
+      {/* Generate Plan CTA - Compact */}
+      <div className="px-5 py-4">
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => setGeneratePlanModalOpen(true)}
-          className="w-full py-4 gradient-accent text-white rounded-2xl font-semibold flex items-center justify-center gap-3 shadow-accent btn-press"
+          className="w-full py-3.5 gradient-accent text-white rounded-2xl font-semibold flex items-center justify-center gap-2 shadow-accent btn-press text-sm"
         >
-          <Sparkles size={22} />
-          <span className="text-title">{weeklyMealPlan ? 'Regenerate My Week' : 'Generate My Week'}</span>
+          <Sparkles size={18} />
+          <span>{weeklyMealPlan ? 'Regenerate My Week' : 'Generate My Week'}</span>
         </motion.button>
       </div>
 
@@ -213,7 +213,7 @@ export function DietPage() {
   );
 }
 
-// Mode Selector Component
+// Slim Mode Selector - 40px height segmented control
 interface ModeSelectorProps {
   currentMode: DietMode;
   onModeChange: (mode: DietMode) => void;
@@ -221,8 +221,9 @@ interface ModeSelectorProps {
 
 function ModeSelector({ currentMode, onModeChange }: ModeSelectorProps) {
   return (
-    <div className="px-6 py-5">
-      <div className="bg-surface rounded-2xl p-1.5 flex gap-1.5">
+    <div className="px-5 py-3">
+      {/* Glassy segmented control */}
+      <div className="bg-white/60 backdrop-blur-sm rounded-full p-1 flex gap-1 border border-white/40 shadow-sm">
         {(Object.keys(modeConfig) as DietMode[]).map((mode) => {
           const config = modeConfig[mode];
           const isActive = currentMode === mode;
@@ -231,31 +232,32 @@ function ModeSelector({ currentMode, onModeChange }: ModeSelectorProps) {
             <motion.button
               key={mode}
               onClick={() => onModeChange(mode)}
-              className={`flex-1 relative py-4 px-3 rounded-xl font-semibold transition-all duration-200 ${isActive ? 'text-white shadow-lg' : 'text-text-secondary hover:text-text-primary'
+              className={`flex-1 relative h-10 rounded-full font-medium text-sm transition-all duration-200 ${isActive ? 'text-white' : 'text-text-secondary hover:text-text-primary'
                 }`}
               whileTap={{ scale: 0.97 }}
             >
               {isActive && (
                 <motion.div
-                  layoutId="mode-indicator"
-                  className={`absolute inset-0 bg-gradient-to-r ${config.gradient} rounded-xl`}
+                  layoutId="mode-pill"
+                  className={`absolute inset-0 bg-gradient-to-r ${config.gradient} rounded-full shadow-md`}
                   initial={false}
-                  transition={{ type: 'spring', bounce: 0.2, duration: 0.5 }}
+                  transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
                 />
               )}
-              <span className="relative z-10 flex flex-col items-center gap-1">
-                <span className="text-xl">{config.icon}</span>
-                <span className="text-label">{config.label}</span>
+              <span className="relative z-10 flex items-center justify-center gap-1.5">
+                <span className="text-base">{config.icon}</span>
+                <span>{config.label}</span>
               </span>
             </motion.button>
           );
         })}
       </div>
+      {/* Muted description caption */}
       <motion.p
         key={currentMode}
-        initial={{ opacity: 0, y: 5 }}
-        animate={{ opacity: 1, y: 0 }}
-        className={`text-center text-label mt-3 ${modeConfig[currentMode].color}`}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="text-center text-xs text-text-tertiary mt-2"
       >
         {modeConfig[currentMode].description}
       </motion.p>
@@ -263,7 +265,7 @@ function ModeSelector({ currentMode, onModeChange }: ModeSelectorProps) {
   );
 }
 
-// Weekly Plan Section - Horizontal Carousel
+// Compact Weekly Plan Section
 interface WeeklyPlanSectionProps {
   plan: WeeklyMealPlan | null;
   isLoading: boolean;
@@ -272,9 +274,9 @@ interface WeeklyPlanSectionProps {
 function WeeklyPlanSection({ plan, isLoading }: WeeklyPlanSectionProps) {
   if (isLoading) {
     return (
-      <div className="py-6">
-        <div className="px-6 mb-4">
-          <div className="h-6 skeleton rounded-lg w-40" />
+      <div className="py-3">
+        <div className="px-5 mb-2">
+          <div className="h-4 skeleton rounded w-32" />
         </div>
         <WeeklyPlanSkeleton />
       </div>
@@ -283,17 +285,17 @@ function WeeklyPlanSection({ plan, isLoading }: WeeklyPlanSectionProps) {
 
   if (!plan) {
     return (
-      <div className="px-6 py-6">
+      <div className="px-5 py-3">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-br from-accent-surface to-white rounded-3xl p-8 text-center border border-accent/10"
+          className="bg-gradient-to-br from-accent/5 to-white rounded-2xl p-5 text-center border border-accent/10"
         >
-          <div className="w-16 h-16 bg-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Calendar size={32} className="text-accent" />
+          <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center mx-auto mb-3">
+            <Calendar size={24} className="text-accent" />
           </div>
-          <h3 className="text-title text-text-primary mb-2">No plan yet</h3>
-          <p className="text-body text-text-secondary">
+          <h3 className="text-sm font-semibold text-text-primary mb-1">No plan yet</h3>
+          <p className="text-xs text-text-secondary">
             Generate a personalized meal plan to get started
           </p>
         </motion.div>
@@ -302,31 +304,35 @@ function WeeklyPlanSection({ plan, isLoading }: WeeklyPlanSectionProps) {
   }
 
   return (
-    <div className="py-6">
-      <div className="flex items-center justify-between px-6 mb-4">
-        <h2 className="text-title text-text-primary">This Week's Plan</h2>
-        <button className="p-2 hover:bg-surface rounded-xl transition-colors touch-target">
-          <Edit3 size={18} className="text-text-tertiary" />
+    <div className="py-3">
+      {/* Section header with divider */}
+      <div className="flex items-center justify-between px-5 mb-2">
+        <div className="flex items-center gap-2">
+          <h2 className="text-sm font-semibold text-text-primary">This Week's Plan</h2>
+          <div className="h-px flex-1 bg-border/50" />
+        </div>
+        <button className="p-1.5 hover:bg-surface rounded-lg transition-colors">
+          <Edit3 size={14} className="text-text-tertiary" />
         </button>
       </div>
 
-      {/* Horizontal scrolling carousel */}
-      <div className="flex gap-4 overflow-x-auto hide-scrollbar px-6 pb-2 snap-x-mandatory">
+      {/* Horizontal scrolling carousel - compact */}
+      <div className="flex gap-3 overflow-x-auto hide-scrollbar px-5 pb-1 snap-x-mandatory">
         {plan.days.map((day, index) => (
-          <DayCard key={day.date} day={day} index={index} />
+          <CompactDayCard key={day.date} day={day} index={index} />
         ))}
       </div>
     </div>
   );
 }
 
-// Day Card - Modern horizontal card
+// Compact Day Card
 interface DayCardProps {
   day: DayPlan;
   index: number;
 }
 
-function DayCard({ day, index }: DayCardProps) {
+function CompactDayCard({ day, index }: DayCardProps) {
   const gradient = dayGradients[index % dayGradients.length];
   const mealIcons = [
     { icon: Coffee, label: 'Breakfast' },
@@ -335,69 +341,54 @@ function DayCard({ day, index }: DayCardProps) {
     { icon: Cookie, label: 'Snack' },
   ];
 
-  const calorieProgress = day.totalCalories / 2500; // Assuming 2500 target
+  const calorieProgress = day.totalCalories / 2500;
 
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * 0.08 }}
-      className={`flex-shrink-0 w-72 h-44 bg-gradient-to-br ${gradient} rounded-3xl p-5 text-white snap-start card-hover cursor-pointer`}
+      transition={{ delay: index * 0.06 }}
+      className={`flex-shrink-0 w-56 h-32 bg-gradient-to-br ${gradient} rounded-2xl p-3.5 text-white snap-start cursor-pointer hover:shadow-lg transition-shadow`}
     >
-      <div className="flex justify-between items-start mb-3">
+      <div className="flex justify-between items-start mb-2">
         <div>
-          <p className="text-white/70 text-caption uppercase tracking-wide">{format(parseISO(day.date), 'EEE')}</p>
-          <p className="text-2xl font-bold">{format(parseISO(day.date), 'MMM d')}</p>
+          <p className="text-white/70 text-[10px] uppercase tracking-wide font-medium">{format(parseISO(day.date), 'EEE')}</p>
+          <p className="text-lg font-bold">{format(parseISO(day.date), 'MMM d')}</p>
         </div>
-        {/* Status indicator */}
-        <div className={`w-3 h-3 rounded-full ${day.status === 'completed' ? 'bg-white' : 'bg-white/40'}`} />
+        <div className={`w-2 h-2 rounded-full ${day.status === 'completed' ? 'bg-white' : 'bg-white/40'}`} />
       </div>
 
-      {/* Meal icons row */}
-      <div className="flex gap-3 mb-4">
+      {/* Meal icons row - smaller */}
+      <div className="flex gap-2 mb-2">
         {mealIcons.map(({ icon: Icon, label }) => {
           const hasMeal = day.meals.some(m => m.category === label.toLowerCase());
           return (
             <div
               key={label}
-              className={`w-9 h-9 rounded-xl flex items-center justify-center ${hasMeal ? 'bg-white/30' : 'bg-white/10'
-                }`}
+              className={`w-7 h-7 rounded-lg flex items-center justify-center ${hasMeal ? 'bg-white/30' : 'bg-white/10'}`}
             >
-              <Icon size={18} className={hasMeal ? 'text-white' : 'text-white/50'} />
+              <Icon size={14} className={hasMeal ? 'text-white' : 'text-white/50'} />
             </div>
           );
         })}
       </div>
 
-      {/* Calorie progress */}
+      {/* Bottom row */}
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-white/70 text-caption">{day.meals.length} meals</p>
-          <p className="text-lg font-semibold">{day.totalCalories} cal</p>
+          <p className="text-white/70 text-[10px]">{day.meals.length} meals</p>
+          <p className="text-sm font-semibold">{day.totalCalories} cal</p>
         </div>
-        {/* Circular progress */}
-        <div className="relative w-12 h-12">
-          <svg className="w-12 h-12 -rotate-90">
+        {/* Mini circular progress */}
+        <div className="relative w-9 h-9">
+          <svg className="w-9 h-9 -rotate-90">
+            <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="3" />
             <circle
-              cx="24"
-              cy="24"
-              r="20"
-              fill="none"
-              stroke="rgba(255,255,255,0.2)"
-              strokeWidth="4"
-            />
-            <circle
-              cx="24"
-              cy="24"
-              r="20"
-              fill="none"
-              stroke="white"
-              strokeWidth="4"
-              strokeLinecap="round"
-              strokeDasharray={`${calorieProgress * 125.6} 125.6`}
+              cx="18" cy="18" r="14" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"
+              strokeDasharray={`${calorieProgress * 88} 88`}
             />
           </svg>
-          <span className="absolute inset-0 flex items-center justify-center text-caption font-semibold">
+          <span className="absolute inset-0 flex items-center justify-center text-[9px] font-semibold">
             {Math.round(calorieProgress * 100)}%
           </span>
         </div>
@@ -406,7 +397,7 @@ function DayCard({ day, index }: DayCardProps) {
   );
 }
 
-// Shopping List Card
+// Compact Shopping List Card
 interface ShoppingListCardProps {
   itemCount: number;
   topItems: { id: string; name: string; quantity: string }[];
@@ -414,36 +405,36 @@ interface ShoppingListCardProps {
 
 function ShoppingListCard({ itemCount, topItems }: ShoppingListCardProps) {
   return (
-    <div className="px-6 py-3">
+    <div className="px-5 py-2">
       <motion.button
-        whileHover={{ scale: 1.01, y: -2 }}
+        whileHover={{ scale: 1.01, y: -1 }}
         whileTap={{ scale: 0.99 }}
-        className="w-full bg-white rounded-2xl p-5 shadow-card card-hover flex items-center gap-4 text-left border border-border/50"
+        className="w-full bg-white rounded-2xl p-4 shadow-sm card-hover flex items-center gap-3 text-left border border-border/30"
       >
-        <div className="w-14 h-14 gradient-carbs rounded-2xl flex items-center justify-center shadow-md">
-          <ShoppingCart size={26} className="text-white" />
+        <div className="w-11 h-11 gradient-carbs rounded-xl flex items-center justify-center shadow-sm">
+          <ShoppingCart size={20} className="text-white" />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <h3 className="text-title text-text-primary">Shopping List</h3>
-            <span className="bg-accent text-white text-caption px-2.5 py-0.5 rounded-full font-semibold">
+          <div className="flex items-center gap-2 mb-0.5">
+            <h3 className="text-sm font-semibold text-text-primary">Shopping List</h3>
+            <span className="bg-accent text-white text-[10px] px-2 py-0.5 rounded-full font-semibold">
               {itemCount}
             </span>
           </div>
-          <p className="text-label text-text-tertiary truncate">
+          <p className="text-xs text-text-tertiary truncate">
             {topItems.length > 0
               ? topItems.map((i) => i.name).join(', ')
               : 'No items yet'}
             {topItems.length < itemCount && '...'}
           </p>
         </div>
-        <ChevronRight size={22} className="text-text-tertiary flex-shrink-0" />
+        <ChevronRight size={18} className="text-text-tertiary flex-shrink-0" />
       </motion.button>
     </div>
   );
 }
 
-// Browse Recipes Section
+// Browse Recipes Section - Compact
 interface BrowseRecipesSectionProps {
   recipes: LibRecipe[];
   dietMode: DietMode;
@@ -480,143 +471,135 @@ function BrowseRecipesSection({
   isLoading,
 }: BrowseRecipesSectionProps) {
   return (
-    <div className="py-4">
-      <div className="px-6 mb-4">
-        <h2 className="text-title text-text-primary">
+    <div className="py-2">
+      {/* Section header with subtle divider */}
+      <div className="px-5 mb-2 flex items-center gap-3">
+        <h2 className="text-sm font-semibold text-text-primary">
           Browse {dietMode.charAt(0).toUpperCase() + dietMode.slice(1)} Recipes
         </h2>
+        <div className="h-px flex-1 bg-border/50" />
       </div>
 
-      {/* Sticky Search & Filters */}
-      <div className={`px-6 py-3 transition-all duration-200 ${isSticky ? 'sticky top-0 z-30 glass' : ''
-        }`}>
-        {/* Search */}
-        <div className="relative mb-3">
-          <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search recipes..."
-            className="w-full pl-12 pr-4 py-3.5 bg-surface rounded-full text-body text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-accent/30 transition-shadow"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-border rounded-full"
-            >
-              <X size={16} className="text-text-tertiary" />
-            </button>
-          )}
-        </div>
-
-        {/* Filters Row */}
-        <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
-          {/* Max Time Filter */}
-          <FilterChip
-            label={maxTime ? `≤${maxTime} min` : 'Any time'}
-            isActive={!!maxTime}
-            onClear={maxTime ? () => setMaxTime(null) : undefined}
-            icon={<Clock size={14} />}
-          >
-            <select
-              value={maxTime ?? ''}
-              onChange={(e) => setMaxTime(e.target.value ? Number(e.target.value) : null)}
-              className="absolute inset-0 opacity-0 cursor-pointer"
-            >
-              <option value="">Any time</option>
-              <option value="15">15 min</option>
-              <option value="25">25 min</option>
-              <option value="40">40 min</option>
-            </select>
-          </FilterChip>
-
-          {/* Min Protein Filter */}
-          <FilterChip
-            label={minProtein ? `${minProtein}g+ protein` : 'Any protein'}
-            isActive={!!minProtein}
-            onClear={minProtein ? () => setMinProtein(null) : undefined}
-            icon={<TrendingUp size={14} />}
-          >
-            <select
-              value={minProtein ?? ''}
-              onChange={(e) => setMinProtein(e.target.value ? Number(e.target.value) : null)}
-              className="absolute inset-0 opacity-0 cursor-pointer"
-            >
-              <option value="">Any protein</option>
-              <option value="20">20g+</option>
-              <option value="30">30g+</option>
-              <option value="40">40g+</option>
-            </select>
-          </FilterChip>
-
-          {/* Has Whey Toggle */}
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setHasWheyFilter(!hasWheyFilter)}
-            className={`flex items-center gap-1.5 px-4 py-2.5 rounded-full text-label font-medium whitespace-nowrap transition-all ${hasWheyFilter
-              ? 'bg-accent text-white shadow-sm'
-              : 'bg-surface text-text-secondary hover:bg-border'
-              }`}
-          >
-            <Zap size={14} />
-            Has Whey
-            {hasWheyFilter && (
-              <X size={14} className="ml-1" onClick={(e) => {
-                e.stopPropagation();
-                setHasWheyFilter(false);
-              }} />
+      {/* Sticky Search & Filters - Compact */}
+      <div className={`px-5 py-2 transition-all duration-200 ${isSticky ? 'sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-border/30' : ''}`}>
+        {/* Single-line search + filters */}
+        <div className="flex gap-2 items-center">
+          {/* Search input - rounded-full */}
+          <div className="relative flex-1">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search..."
+              className="w-full pl-9 pr-8 py-2 bg-surface rounded-full text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-accent/20 transition-shadow"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 hover:bg-border rounded-full"
+              >
+                <X size={14} className="text-text-tertiary" />
+              </button>
             )}
-          </motion.button>
+          </div>
 
-          {/* Clear all */}
-          {hasActiveFilters && (
-            <motion.button
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              onClick={clearAllFilters}
-              className="flex items-center gap-1 px-3 py-2.5 rounded-full text-label font-medium text-error hover:bg-error/10 transition-colors whitespace-nowrap"
+          {/* Filter chips - small pills */}
+          <div className="flex gap-1.5 overflow-x-auto hide-scrollbar">
+            <FilterPill
+              label={maxTime ? `≤${maxTime}m` : 'Time'}
+              isActive={!!maxTime}
+              icon={<Clock size={12} />}
             >
-              <X size={14} />
-              Clear all
+              <select
+                value={maxTime ?? ''}
+                onChange={(e) => setMaxTime(e.target.value ? Number(e.target.value) : null)}
+                className="absolute inset-0 opacity-0 cursor-pointer"
+              >
+                <option value="">Any</option>
+                <option value="15">15m</option>
+                <option value="25">25m</option>
+                <option value="40">40m</option>
+              </select>
+            </FilterPill>
+
+            <FilterPill
+              label={minProtein ? `${minProtein}g+` : 'Protein'}
+              isActive={!!minProtein}
+              icon={<TrendingUp size={12} />}
+            >
+              <select
+                value={minProtein ?? ''}
+                onChange={(e) => setMinProtein(e.target.value ? Number(e.target.value) : null)}
+                className="absolute inset-0 opacity-0 cursor-pointer"
+              >
+                <option value="">Any</option>
+                <option value="20">20g+</option>
+                <option value="30">30g+</option>
+                <option value="40">40g+</option>
+              </select>
+            </FilterPill>
+
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setHasWheyFilter(!hasWheyFilter)}
+              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all border ${hasWheyFilter
+                  ? 'bg-accent text-white border-accent'
+                  : 'bg-white text-text-secondary border-border/50 hover:border-border'
+                }`}
+            >
+              <Zap size={11} />
+              Whey
             </motion.button>
-          )}
+
+            {hasActiveFilters && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                onClick={clearAllFilters}
+                className="flex items-center gap-0.5 px-2 py-1.5 rounded-full text-xs font-medium text-error hover:bg-error/10 transition-colors whitespace-nowrap"
+              >
+                <X size={12} />
+                Clear
+              </motion.button>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Recipe Grid */}
-      <div className="px-6 mt-4">
+      {/* Recipe Grid - Tight gaps, more columns */}
+      <div className="px-5 mt-2">
         {isLoading ? (
           <RecipeListSkeleton count={6} />
         ) : recipes.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-surface rounded-2xl p-8 text-center"
+            className="bg-surface rounded-xl p-6 text-center"
           >
-            <div className="w-14 h-14 bg-border rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Search size={24} className="text-text-tertiary" />
+            <div className="w-10 h-10 bg-border rounded-xl flex items-center justify-center mx-auto mb-3">
+              <Search size={18} className="text-text-tertiary" />
             </div>
-            <p className="text-body text-text-secondary">No recipes match your filters</p>
+            <p className="text-sm text-text-secondary">No recipes match your filters</p>
             {hasActiveFilters && (
               <button
                 onClick={clearAllFilters}
-                className="mt-3 text-accent font-medium text-label hover:underline"
+                className="mt-2 text-accent font-medium text-xs hover:underline"
               >
                 Clear all filters
               </button>
             )}
           </motion.div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             {recipes.map((recipe, index) => (
               <motion.div
                 key={recipe.id}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
+                transition={{ delay: index * 0.03 }}
               >
-                <LibRecipeCard
+                <CompactRecipeCard
                   recipe={recipe}
                   onClick={() => onRecipeClick(recipe.id)}
                 />
@@ -629,103 +612,93 @@ function BrowseRecipesSection({
   );
 }
 
-// Filter Chip Component
-function FilterChip({
+// Filter Pill - Very small
+function FilterPill({
   label,
   isActive,
-  onClear,
   icon,
   children
 }: {
   label: string;
   isActive: boolean;
-  onClear?: () => void;
   icon?: React.ReactNode;
   children?: React.ReactNode;
 }) {
   return (
-    <div className={`relative flex items-center gap-1.5 px-4 py-2.5 rounded-full text-label font-medium whitespace-nowrap transition-all cursor-pointer ${isActive
-      ? 'bg-accent text-white shadow-sm'
-      : 'bg-surface text-text-secondary hover:bg-border'
+    <div className={`relative flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all cursor-pointer border ${isActive
+        ? 'bg-accent text-white border-accent'
+        : 'bg-white text-text-secondary border-border/50 hover:border-border'
       }`}>
       {icon}
       <span>{label}</span>
-      {isActive && onClear && (
-        <button onClick={(e) => { e.stopPropagation(); onClear(); }} className="ml-1">
-          <X size={14} />
-        </button>
-      )}
       {children}
     </div>
   );
 }
 
-// Library Recipe Card - Compact Premium Design
-function LibRecipeCard({ recipe, onClick }: { recipe: LibRecipe; onClick: () => void }) {
+// Compact Recipe Card for Grid
+function CompactRecipeCard({ recipe, onClick }: { recipe: LibRecipe; onClick: () => void }) {
   const isHighProtein = recipe.macrosPerServing.protein > 30;
 
   return (
     <motion.button
-      whileHover={{ y: -2 }}
+      whileHover={{ y: -3, boxShadow: '0 8px 25px -5px rgba(0,0,0,0.1)' }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className="w-full bg-white/80 backdrop-blur-sm rounded-3xl overflow-hidden text-left border border-white/40 shadow-sm hover:shadow-md transition-all duration-200"
+      className="w-full bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden text-left border border-border/30 shadow-sm transition-all duration-200"
     >
-      {/* Image section - 60% */}
-      <div className="relative h-32 overflow-hidden">
+      {/* Image - Compact */}
+      <div className="relative h-24 overflow-hidden">
         <img
           src={recipe.image}
           alt={recipe.title}
           className="w-full h-full object-cover"
         />
-        {/* Subtle gradient at bottom */}
-        <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-black/30 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-black/25 to-transparent" />
 
-        {/* Tiny pill badges - top right */}
-        <div className="absolute top-2 right-2 flex gap-1">
+        {/* Tiny badges */}
+        <div className="absolute top-1.5 right-1.5 flex gap-1">
           {isHighProtein && (
-            <span className="bg-white/90 backdrop-blur-sm text-[10px] font-medium text-emerald-600 px-2 py-0.5 rounded-full">
-              High Protein
+            <span className="bg-white/95 backdrop-blur-sm text-[8px] font-semibold text-emerald-600 px-1.5 py-0.5 rounded-full">
+              High P
             </span>
           )}
           {recipe.hasWhey && (
-            <span className="bg-accent/90 backdrop-blur-sm text-[10px] font-medium text-white px-2 py-0.5 rounded-full flex items-center gap-0.5">
-              <Zap size={8} />
-              Whey
+            <span className="bg-accent/95 backdrop-blur-sm text-[8px] font-semibold text-white px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+              <Zap size={7} />
             </span>
           )}
         </div>
       </div>
 
-      {/* Content section */}
-      <div className="p-3">
-        {/* Title */}
-        <h3 className="text-sm font-semibold text-text-primary line-clamp-2 mb-2">
+      {/* Content - Compact */}
+      <div className="p-2.5">
+        <h3 className="text-xs font-semibold text-text-primary line-clamp-2 mb-1.5 leading-tight">
           {recipe.title}
         </h3>
 
-        {/* Meta row */}
-        <div className="flex items-center gap-3 text-[11px] text-text-tertiary mb-2">
-          <span className="flex items-center gap-1">
-            <Clock size={11} />
+        {/* Meta inline */}
+        <div className="flex items-center gap-2 text-[10px] text-text-tertiary mb-1.5">
+          <span className="flex items-center gap-0.5">
+            <Clock size={9} />
             {recipe.timeMins}m
           </span>
-          <span className="flex items-center gap-1">
-            <Flame size={11} />
+          <span className="flex items-center gap-0.5">
+            <Flame size={9} />
             {recipe.macrosPerServing.kcal}
           </span>
         </div>
 
         {/* Macro pills - tiny */}
-        <div className="flex gap-1.5">
-          <span className="text-[9px] bg-protein/10 text-protein px-2 py-0.5 rounded-full font-medium">
-            P {recipe.macrosPerServing.protein}g
+        <div className="flex gap-1">
+          <span className="text-[8px] bg-protein/10 text-protein px-1.5 py-0.5 rounded-full font-semibold">
+            P{recipe.macrosPerServing.protein}
           </span>
-          <span className="text-[9px] bg-carbs/10 text-carbs px-2 py-0.5 rounded-full font-medium">
-            C {recipe.macrosPerServing.carbs}g
+          <span className="text-[8px] bg-carbs/10 text-carbs px-1.5 py-0.5 rounded-full font-semibold">
+            C{recipe.macrosPerServing.carbs}
           </span>
-          <span className="text-[9px] bg-fat/10 text-fat px-2 py-0.5 rounded-full font-medium">
-            F {recipe.macrosPerServing.fat}g
+          <span className="text-[8px] bg-fat/10 text-fat px-1.5 py-0.5 rounded-full font-semibold">
+            F{recipe.macrosPerServing.fat}
           </span>
         </div>
       </div>
@@ -733,25 +706,22 @@ function LibRecipeCard({ recipe, onClick }: { recipe: LibRecipe; onClick: () => 
   );
 }
 
-// Recipe Recommendations
+// Recipe Recommendations - Compact
 interface RecipeRecommendationsProps {
   recipes: Recipe[];
   dietMode: DietMode;
 }
 
 function RecipeRecommendations({ recipes, dietMode }: RecipeRecommendationsProps) {
-  // Filter recipes by classification score >= 70 for current mode
   const filteredRecipes = recipes.filter((r) => {
     if (r.classification) {
       return r.classification.score[dietMode] >= 70;
     }
-    // Fallback to old logic if no classification
     if (dietMode === 'bulk') return r.protein > 30;
     if (dietMode === 'cut') return r.calories < 400;
     return true;
   });
 
-  // Sort by score (highest first)
   const sortedRecipes = [...filteredRecipes].sort((a, b) => {
     const scoreA = a.classification?.score[dietMode] ?? 0;
     const scoreB = b.classification?.score[dietMode] ?? 0;
@@ -759,29 +729,32 @@ function RecipeRecommendations({ recipes, dietMode }: RecipeRecommendationsProps
   });
 
   return (
-    <div className="py-6">
-      <div className="flex items-center justify-between px-6 mb-4">
-        <h2 className="text-title text-text-primary">Recommended for You</h2>
-        <button className="text-label text-accent font-semibold hover:underline">See all</button>
+    <div className="py-3">
+      <div className="flex items-center justify-between px-5 mb-2">
+        <div className="flex items-center gap-2">
+          <h2 className="text-sm font-semibold text-text-primary">Recommended for You</h2>
+          <div className="h-px flex-1 bg-border/50" />
+        </div>
+        <button className="text-xs text-accent font-semibold hover:underline">See all</button>
       </div>
       {sortedRecipes.length === 0 ? (
-        <div className="px-6">
-          <div className="bg-surface rounded-2xl p-6 text-center">
-            <p className="text-body text-text-secondary">
+        <div className="px-5">
+          <div className="bg-surface rounded-xl p-4 text-center">
+            <p className="text-xs text-text-secondary">
               No recipes match your {dietMode} goals with score 70+
             </p>
           </div>
         </div>
       ) : (
-        <div className="flex gap-3 overflow-x-auto px-5 pb-2 hide-scrollbar snap-x-mandatory">
+        <div className="flex gap-2.5 overflow-x-auto px-5 pb-1 hide-scrollbar snap-x-mandatory">
           {sortedRecipes.slice(0, 5).map((recipe, index) => (
             <motion.div
               key={recipe.id}
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: 15 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.08 }}
+              transition={{ delay: index * 0.06 }}
             >
-              <RecipeCard recipe={recipe} dietMode={dietMode} />
+              <HorizontalRecipeCard recipe={recipe} dietMode={dietMode} />
             </motion.div>
           ))}
         </div>
@@ -790,8 +763,8 @@ function RecipeRecommendations({ recipes, dietMode }: RecipeRecommendationsProps
   );
 }
 
-// Recipe Card - Compact Horizontal Scroll Card
-function RecipeCard({ recipe, dietMode }: { recipe: Recipe; dietMode: DietMode }) {
+// Horizontal Recipe Card - For carousel
+function HorizontalRecipeCard({ recipe, dietMode }: { recipe: Recipe; dietMode: DietMode }) {
   const [liked, setLiked] = useState(false);
   const score = recipe.classification?.score[dietMode] ?? 0;
   const isHighProtein = recipe.protein > 30;
@@ -800,67 +773,59 @@ function RecipeCard({ recipe, dietMode }: { recipe: Recipe; dietMode: DietMode }
     <motion.div
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.98 }}
-      className="flex-shrink-0 w-[220px] h-[180px] bg-white/80 backdrop-blur-sm rounded-3xl overflow-hidden text-left border border-white/40 shadow-sm hover:shadow-md transition-all duration-200 snap-start"
+      className="flex-shrink-0 w-44 h-40 bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden text-left border border-border/30 shadow-sm transition-all duration-200 snap-start"
     >
-      {/* Image Section - 60% */}
-      <div className="relative h-[108px] overflow-hidden">
+      {/* Image */}
+      <div className="relative h-20 overflow-hidden">
         <img
           src={recipe.photo_url}
           alt={recipe.name}
           className="w-full h-full object-cover"
         />
-        {/* Subtle gradient */}
-        <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-black/30 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-5 bg-gradient-to-t from-black/25 to-transparent" />
 
         {/* Like button */}
         <button
           onClick={(e) => { e.stopPropagation(); setLiked(!liked); }}
-          className="absolute top-2 right-2 p-1.5 bg-white/90 backdrop-blur-sm rounded-full"
+          className="absolute top-1.5 right-1.5 p-1 bg-white/90 backdrop-blur-sm rounded-full"
         >
           <Heart
-            size={14}
+            size={12}
             className={`transition-colors ${liked ? 'fill-protein text-protein' : 'text-text-tertiary'}`}
           />
         </button>
 
-        {/* Tiny badges */}
-        <div className="absolute top-2 left-2 flex gap-1">
-          {isHighProtein && (
-            <span className="bg-white/90 backdrop-blur-sm text-[9px] font-medium text-emerald-600 px-1.5 py-0.5 rounded-full">
-              High Protein
-            </span>
-          )}
-        </div>
+        {isHighProtein && (
+          <span className="absolute top-1.5 left-1.5 bg-white/95 backdrop-blur-sm text-[8px] font-semibold text-emerald-600 px-1.5 py-0.5 rounded-full">
+            High P
+          </span>
+        )}
       </div>
 
-      {/* Content Section */}
-      <div className="p-3">
-        {/* Title */}
-        <h3 className="text-sm font-semibold text-text-primary line-clamp-1 mb-1.5">
+      {/* Content */}
+      <div className="p-2">
+        <h3 className="text-[11px] font-semibold text-text-primary line-clamp-1 mb-1">
           {recipe.name}
         </h3>
 
-        {/* Meta row */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5 text-[11px] text-text-tertiary">
-            <span className="flex items-center gap-1">
-              <Clock size={10} />
-              {recipe.prepTime}m
-            </span>
-            <span className="flex items-center gap-1">
-              <Flame size={10} />
-              {recipe.calories}
-            </span>
-          </div>
+        <div className="flex items-center gap-2 text-[9px] text-text-tertiary mb-1.5">
+          <span className="flex items-center gap-0.5">
+            <Clock size={8} />
+            {recipe.prepTime}m
+          </span>
+          <span className="flex items-center gap-0.5">
+            <Flame size={8} />
+            {recipe.calories}
+          </span>
         </div>
 
         {/* Slim score bar */}
         {score > 0 && (
-          <div className="mt-2 w-full h-[3px] bg-gray-100 rounded-full overflow-hidden">
+          <div className="w-full h-[2px] bg-gray-100 rounded-full overflow-hidden">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${score}%` }}
-              transition={{ duration: 0.5, delay: 0.1 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
               className="h-full bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full"
             />
           </div>
@@ -894,7 +859,6 @@ function GeneratePlanModal({ isOpen, onClose }: GeneratePlanModalProps) {
     setStep('generating');
     setIsGeneratingPlan(true);
 
-    // Simulate AI generation
     await new Promise((resolve) => setTimeout(resolve, 3000));
 
     setIsGeneratingPlan(false);
@@ -902,7 +866,6 @@ function GeneratePlanModal({ isOpen, onClose }: GeneratePlanModalProps) {
   };
 
   const handleConfirm = () => {
-    // In production, this would save the generated plan
     onClose();
     setStep('preferences');
   };
@@ -928,33 +891,31 @@ function GeneratePlanModal({ isOpen, onClose }: GeneratePlanModalProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-50 max-h-[90vh] overflow-auto"
+            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-50 max-h-[85vh] overflow-auto"
           >
-            <div className="p-6">
-              {/* Handle bar */}
-              <div className="w-10 h-1 bg-border rounded-full mx-auto mb-6" />
+            <div className="p-5">
+              <div className="w-10 h-1 bg-border rounded-full mx-auto mb-5" />
 
-              {/* Header */}
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h2 className="text-headline text-text-primary">Generate Meal Plan</h2>
-                  <p className="text-label text-text-secondary mt-1">
+                  <h2 className="text-lg font-bold text-text-primary">Generate Meal Plan</h2>
+                  <p className="text-xs text-text-secondary mt-0.5">
                     AI-powered plan for your {dietMode} goals
                   </p>
                 </div>
                 <button
                   onClick={handleClose}
-                  className="p-2.5 hover:bg-surface rounded-xl transition-colors touch-target"
+                  className="p-2 hover:bg-surface rounded-xl transition-colors"
                 >
-                  <X size={24} className="text-text-secondary" />
+                  <X size={20} className="text-text-secondary" />
                 </button>
               </div>
 
               {step === 'preferences' && (
-                <div className="space-y-6">
+                <div className="space-y-5">
                   {/* Meals per day */}
                   <div>
-                    <label className="text-label font-semibold text-text-primary mb-3 block">
+                    <label className="text-xs font-semibold text-text-primary mb-2 block">
                       Meals per day
                     </label>
                     <div className="flex gap-2">
@@ -963,9 +924,9 @@ function GeneratePlanModal({ isOpen, onClose }: GeneratePlanModalProps) {
                           key={num}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => setPreferences({ ...preferences, mealsPerDay: num })}
-                          className={`flex-1 py-3.5 rounded-xl font-semibold transition-all ${preferences.mealsPerDay === num
-                            ? 'gradient-accent text-white shadow-accent'
-                            : 'bg-surface text-text-secondary hover:bg-border'
+                          className={`flex-1 py-2.5 rounded-xl font-semibold text-sm transition-all ${preferences.mealsPerDay === num
+                              ? 'gradient-accent text-white shadow-accent'
+                              : 'bg-surface text-text-secondary hover:bg-border'
                             }`}
                         >
                           {num}
@@ -976,10 +937,10 @@ function GeneratePlanModal({ isOpen, onClose }: GeneratePlanModalProps) {
 
                   {/* Cuisine preferences */}
                   <div>
-                    <label className="text-label font-semibold text-text-primary mb-3 block">
+                    <label className="text-xs font-semibold text-text-primary mb-2 block">
                       Cuisine preferences
                     </label>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5">
                       {cuisineOptions.map((cuisine) => (
                         <motion.button
                           key={cuisine}
@@ -990,9 +951,9 @@ function GeneratePlanModal({ isOpen, onClose }: GeneratePlanModalProps) {
                               : [...preferences.cuisine, cuisine];
                             setPreferences({ ...preferences, cuisine: selected });
                           }}
-                          className={`px-4 py-2.5 rounded-full text-label font-medium transition-all ${preferences.cuisine.includes(cuisine)
-                            ? 'gradient-accent text-white shadow-sm'
-                            : 'bg-surface text-text-secondary hover:bg-border'
+                          className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${preferences.cuisine.includes(cuisine)
+                              ? 'gradient-accent text-white shadow-sm'
+                              : 'bg-surface text-text-secondary hover:bg-border'
                             }`}
                         >
                           {cuisine}
@@ -1003,10 +964,10 @@ function GeneratePlanModal({ isOpen, onClose }: GeneratePlanModalProps) {
 
                   {/* Foods to avoid */}
                   <div>
-                    <label className="text-label font-semibold text-text-primary mb-3 block">
+                    <label className="text-xs font-semibold text-text-primary mb-2 block">
                       Foods to avoid
                     </label>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5">
                       {avoidOptions.map((food) => (
                         <motion.button
                           key={food}
@@ -1017,9 +978,9 @@ function GeneratePlanModal({ isOpen, onClose }: GeneratePlanModalProps) {
                               : [...preferences.avoid, food];
                             setPreferences({ ...preferences, avoid: selected });
                           }}
-                          className={`px-4 py-2.5 rounded-full text-label font-medium transition-all ${preferences.avoid.includes(food)
-                            ? 'gradient-protein text-white shadow-sm'
-                            : 'bg-surface text-text-secondary hover:bg-border'
+                          className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${preferences.avoid.includes(food)
+                              ? 'gradient-protein text-white shadow-sm'
+                              : 'bg-surface text-text-secondary hover:bg-border'
                             }`}
                         >
                           {food}
@@ -1030,7 +991,7 @@ function GeneratePlanModal({ isOpen, onClose }: GeneratePlanModalProps) {
 
                   {/* Budget */}
                   <div>
-                    <label className="text-label font-semibold text-text-primary mb-3 block">
+                    <label className="text-xs font-semibold text-text-primary mb-2 block">
                       Budget level
                     </label>
                     <div className="flex gap-2">
@@ -1039,9 +1000,9 @@ function GeneratePlanModal({ isOpen, onClose }: GeneratePlanModalProps) {
                           key={level}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => setPreferences({ ...preferences, budget: level })}
-                          className={`flex-1 py-3.5 rounded-xl font-semibold capitalize transition-all ${preferences.budget === level
-                            ? 'gradient-accent text-white shadow-accent'
-                            : 'bg-surface text-text-secondary hover:bg-border'
+                          className={`flex-1 py-2.5 rounded-xl font-semibold capitalize text-sm transition-all ${preferences.budget === level
+                              ? 'gradient-accent text-white shadow-accent'
+                              : 'bg-surface text-text-secondary hover:bg-border'
                             }`}
                         >
                           {level}
@@ -1052,7 +1013,7 @@ function GeneratePlanModal({ isOpen, onClose }: GeneratePlanModalProps) {
 
                   {/* Cooking time */}
                   <div>
-                    <label className="text-label font-semibold text-text-primary mb-3 block">
+                    <label className="text-xs font-semibold text-text-primary mb-2 block">
                       Cooking time preference
                     </label>
                     <div className="flex gap-2">
@@ -1061,12 +1022,12 @@ function GeneratePlanModal({ isOpen, onClose }: GeneratePlanModalProps) {
                           key={time}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => setPreferences({ ...preferences, cookingTime: time })}
-                          className={`flex-1 py-3.5 rounded-xl font-semibold transition-all ${preferences.cookingTime === time
-                            ? 'gradient-accent text-white shadow-accent'
-                            : 'bg-surface text-text-secondary hover:bg-border'
+                          className={`flex-1 py-2.5 rounded-xl font-semibold text-sm transition-all ${preferences.cookingTime === time
+                              ? 'gradient-accent text-white shadow-accent'
+                              : 'bg-surface text-text-secondary hover:bg-border'
                             }`}
                         >
-                          {time === 'quick' ? '< 15 min' : time === 'moderate' ? '15-30 min' : '30+ min'}
+                          {time === 'quick' ? '< 15m' : time === 'moderate' ? '15-30m' : '30m+'}
                         </motion.button>
                       ))}
                     </div>
@@ -1076,75 +1037,74 @@ function GeneratePlanModal({ isOpen, onClose }: GeneratePlanModalProps) {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleGenerate}
-                    className="w-full py-4 gradient-accent text-white rounded-2xl font-semibold flex items-center justify-center gap-3 shadow-accent mt-4"
+                    className="w-full py-3.5 gradient-accent text-white rounded-2xl font-semibold flex items-center justify-center gap-2 shadow-accent mt-3 text-sm"
                   >
-                    <Sparkles size={22} />
-                    <span className="text-title">Generate Plan</span>
+                    <Sparkles size={18} />
+                    <span>Generate Plan</span>
                   </motion.button>
                 </div>
               )}
 
               {step === 'generating' && (
-                <div className="py-16 text-center">
-                  {/* Animated loading skeleton */}
-                  <div className="w-20 h-20 mx-auto mb-6 relative">
-                    <div className="absolute inset-0 gradient-accent rounded-2xl animate-pulse" />
-                    <div className="absolute inset-2 bg-white rounded-xl flex items-center justify-center">
-                      <Sparkles size={32} className="text-accent animate-pulse" />
+                <div className="py-12 text-center">
+                  <div className="w-16 h-16 mx-auto mb-5 relative">
+                    <div className="absolute inset-0 gradient-accent rounded-xl animate-pulse" />
+                    <div className="absolute inset-1.5 bg-white rounded-lg flex items-center justify-center">
+                      <Sparkles size={24} className="text-accent animate-pulse" />
                     </div>
                   </div>
-                  <h3 className="text-title text-text-primary mb-2">
+                  <h3 className="text-sm font-semibold text-text-primary mb-1">
                     Creating your personalized plan...
                   </h3>
-                  <p className="text-body text-text-secondary">
+                  <p className="text-xs text-text-secondary">
                     Our AI is designing meals that match your goals
                   </p>
                 </div>
               )}
 
               {step === 'preview' && (
-                <div className="space-y-5">
+                <div className="space-y-4">
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="gradient-success rounded-2xl p-5 flex items-center gap-4"
+                    className="gradient-success rounded-xl p-4 flex items-center gap-3"
                   >
-                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                      <Check size={28} className="text-white" />
+                    <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                      <Check size={22} className="text-white" />
                     </div>
                     <div className="text-white">
-                      <p className="text-title font-semibold">Your plan is ready!</p>
-                      <p className="text-label opacity-90">7 days of balanced meals</p>
+                      <p className="text-sm font-semibold">Your plan is ready!</p>
+                      <p className="text-xs opacity-90">7 days of balanced meals</p>
                     </div>
                   </motion.div>
 
-                  <div className="bg-surface rounded-2xl p-5">
-                    <h4 className="text-title text-text-primary mb-4">Plan Summary</h4>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-white rounded-xl p-4">
-                        <p className="text-caption text-text-tertiary mb-1">Avg. Daily Calories</p>
-                        <p className="text-title text-text-primary">2,450 cal</p>
+                  <div className="bg-surface rounded-xl p-4">
+                    <h4 className="text-sm font-semibold text-text-primary mb-3">Plan Summary</h4>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <div className="bg-white rounded-lg p-3">
+                        <p className="text-[10px] text-text-tertiary mb-0.5">Avg. Daily Calories</p>
+                        <p className="text-sm font-semibold text-text-primary">2,450 cal</p>
                       </div>
-                      <div className="bg-white rounded-xl p-4">
-                        <p className="text-caption text-text-tertiary mb-1">Total Meals</p>
-                        <p className="text-title text-text-primary">28 meals</p>
+                      <div className="bg-white rounded-lg p-3">
+                        <p className="text-[10px] text-text-tertiary mb-0.5">Total Meals</p>
+                        <p className="text-sm font-semibold text-text-primary">28 meals</p>
                       </div>
-                      <div className="bg-white rounded-xl p-4">
-                        <p className="text-caption text-text-tertiary mb-1">Prep Time</p>
-                        <p className="text-title text-text-primary">~25 min avg</p>
+                      <div className="bg-white rounded-lg p-3">
+                        <p className="text-[10px] text-text-tertiary mb-0.5">Prep Time</p>
+                        <p className="text-sm font-semibold text-text-primary">~25 min avg</p>
                       </div>
-                      <div className="bg-white rounded-xl p-4">
-                        <p className="text-caption text-text-tertiary mb-1">Shopping Items</p>
-                        <p className="text-title text-text-primary">32 items</p>
+                      <div className="bg-white rounded-lg p-3">
+                        <p className="text-[10px] text-text-tertiary mb-0.5">Shopping Items</p>
+                        <p className="text-sm font-semibold text-text-primary">32 items</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex gap-3 pt-2">
+                  <div className="flex gap-2.5 pt-1">
                     <motion.button
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setStep('preferences')}
-                      className="flex-1 py-4 bg-surface rounded-2xl font-semibold text-text-secondary hover:bg-border transition-colors"
+                      className="flex-1 py-3 bg-surface rounded-xl font-semibold text-sm text-text-secondary hover:bg-border transition-colors"
                     >
                       Regenerate
                     </motion.button>
@@ -1152,7 +1112,7 @@ function GeneratePlanModal({ isOpen, onClose }: GeneratePlanModalProps) {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={handleConfirm}
-                      className="flex-1 py-4 gradient-accent rounded-2xl font-semibold text-white shadow-accent"
+                      className="flex-1 py-3 gradient-accent rounded-xl font-semibold text-sm text-white shadow-accent"
                     >
                       Confirm Plan
                     </motion.button>
